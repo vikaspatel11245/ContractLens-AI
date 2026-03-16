@@ -1,17 +1,18 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class ClauseResult(BaseModel):
     clause_id: str
     text: str
     page: int
-    score: int            # 1-10 (10 = highest risk)
-    category: str         # liability | ip | payment | termination | data | auto_renewal
-    severity: str         # low | medium | high | critical
-    reasoning: str        # one sentence plain-English explanation
-    suggestions: List[str]
+    score: int
+    category: str
+    severity: str
+    reasoning: str
+    suggestions: List[str] = []
+    ask_for: Optional[str] = ""
 
 class AnalysisResponse(BaseModel):
     clauses: List[ClauseResult]
-    overall_score: int    # 0-100
+    overall_score: int
     pdf_id: str
