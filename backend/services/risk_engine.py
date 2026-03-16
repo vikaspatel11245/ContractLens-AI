@@ -2,6 +2,7 @@ import re
 import json
 import os
 import uuid
+import time
 from dotenv import load_dotenv
 from groq import Groq
 from models.schemas import ClauseResult, AnalysisResponse
@@ -11,12 +12,10 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def analyze_clauses(clauses: list) -> AnalysisResponse:
-    # Remove the 10-clause limit, cap at 50 for token management
-    active_clauses = clauses[:50] 
+    active_clauses = clauses[:15]
 
     clause_data_for_llm = []
     for c in active_clauses:
-        # Snippet for LLM analysis
         snippet = c["text"][:300].replace('\n', ' ').strip()
         clause_data_for_llm.append({
             "id": c["id"],
@@ -41,21 +40,29 @@ Clauses to analyze:
 
 Return ONLY a raw JSON array, nothing else."""
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a contract risk analyst. Always respond with valid JSON only. No markdown, no explanation."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.1,
-        max_tokens=4096,
-    )
+    for attempt in range(3):
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a contract risk analyst. Always respond with valid JSON only. No markdown, no explanation."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.1,
+                max_tokens=4096,
+            )
+            break
+        except Exception as e:
+            if "429" in str(e) and attempt < 2:
+                time.sleep(10)
+                continue
+            raise e
 
     raw = response.choices[0].message.content.strip()
 
@@ -64,18 +71,17 @@ Return ONLY a raw JSON array, nothing else."""
         raw = re.sub(r'\n?```$', '', raw)
 
     llm_results = json.loads(raw)
-    
-    # Map back to original clauses to preserve full text for highlighting
+
     clause_lookup = {c["id"]: c for c in active_clauses}
     final_results = []
-    
+
     for r in llm_results:
         cid = r.get("clause_id")
         if cid in clause_lookup:
             orig = clause_lookup[cid]
             final_results.append(ClauseResult(
                 clause_id=cid,
-                text=orig["text"], # Use original text for highlighting!
+                text=orig["text"],
                 page=orig["page"],
                 score=r["score"],
                 category=r["category"],
