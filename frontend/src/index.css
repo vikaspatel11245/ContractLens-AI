@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CSS DESIGN TOKENS
+   Single source of truth — all values also exist in tailwind.config.js.
+   Use CSS vars for dynamic runtime theming (e.g. computed risk colors).
+───────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Risk spectrum */
+  --risk-low: #C0DD97;
+  --risk-low-bg: #1A2410;
+  --risk-low-border: #3D5A1E;
+
+  --risk-medium: #FAC775;
+  --risk-medium-bg: #251A08;
+  --risk-medium-border: #6B4A0F;
+
+  --risk-high: #F09595;
+  --risk-high-bg: #2A1010;
+  --risk-high-border: #7A2020;
+
+  --risk-critical: #F7C1C1;
+  --risk-critical-bg: #2A0D0D;
+  --risk-critical-border: #8B1A1A;
+
+  /* Surface layers */
+  --surface-base: #0C0E12;
+  --surface-raised: #111318;
+  --surface-overlay: #181B22;
+  --surface-border: #1F2330;
+  --surface-muted: #2A2F3D;
+
+  /* Text */
+  --ink-primary: #E8EAF0;
+  --ink-secondary: #8B91A8;
+  --ink-muted: #4A5068;
+  --ink-inverse: #0C0E12;
+
+  /* Interactive */
+  --accent: #5B8AF0;
+  --accent-hover: #7AA3FF;
+  --accent-dim: #1A2540;
+
+  /* Layout */
+  --header-h: 56px;
+  --sidebar-w: 280px;
+  --panel-gap: 16px;
+
+  /* Type */
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE RESETS
+───────────────────────────────────────────────────────────────────────────── */
+@layer base {
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--surface-base);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  /* Scrollbar — subtle, matches dark theme */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--surface-base);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface-muted);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-muted);
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: var(--accent-dim);
+    color: var(--accent-hover);
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   COMPONENT LAYER — reusable class utilities
+───────────────────────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Panels / Cards ─────────────────────────────────────────── */
+  .panel {
+    @apply bg-surface-raised border border-surface-border rounded-xl;
+  }
+
+  .panel-overlay {
+    @apply bg-surface-overlay border border-surface-border rounded-xl;
+  }
+
+  /* ── Risk badge chips ───────────────────────────────────────── */
+  .badge-risk {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-xs font-medium tracking-wide uppercase;
+  }
+
+  .badge-low {
+    @apply badge-risk bg-risk-low-bg text-risk-low border border-risk-low-border;
+  }
+
+  .badge-medium {
+    @apply badge-risk bg-risk-medium-bg text-risk-medium border border-risk-medium-border;
+  }
+
+  .badge-high {
+    @apply badge-risk bg-risk-high-bg text-risk-high border border-risk-high-border;
+  }
+
+  .badge-critical {
+    @apply badge-risk bg-risk-critical-bg text-risk-critical border border-risk-critical-border;
+  }
+
+  /* ── Heatmap cells ──────────────────────────────────────────── */
+  .heatmap-cell {
+    @apply relative rounded cursor-pointer transition-all duration-150 hover:scale-110 hover:z-10 hover:ring-2 hover:ring-white/20;
+  }
+
+  /* ── Skeleton shimmer ───────────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(90deg,
+        var(--surface-raised) 25%,
+        var(--surface-overlay) 50%,
+        var(--surface-raised) 75%);
+    background-size: 200% 100%;
+    @apply animate-shimmer rounded;
+  }
+
+  /* ── Mono data labels ───────────────────────────────────────── */
+  .data-label {
+    @apply font-mono text-2xs text-ink-muted tracking-widest uppercase;
+  }
+
+  .data-value {
+    @apply font-mono text-ink-primary;
+  }
+
+  /* ── Divider ────────────────────────────────────────────────── */
+  .divider {
+    @apply border-t border-surface-border;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   UTILITY LAYER — one-off helpers
+───────────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
