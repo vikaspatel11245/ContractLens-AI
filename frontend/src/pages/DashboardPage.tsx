@@ -7,7 +7,7 @@ import RiskHeatmap from '../components/RiskHeatmap'
 import PDFViewer from '../components/PDFViewer'
 import NegotiationCard from '../components/NegotiationCard'
 
-import { SEVERITY_TOKENS } from '../utils/riskColors'
+import { scoreToSeverity, SEVERITY_TOKENS } from '../utils/riskColors'
 
 interface Props {
   analysis: AnalysisResponse
@@ -180,7 +180,8 @@ function ClauseCard({
   onSelect: () => void
 }) {
 
-  const tokens = SEVERITY_TOKENS[clause.severity]
+  const severity = scoreToSeverity(clause.score)
+  const tokens = SEVERITY_TOKENS[severity]
 
   return (
     <button
@@ -200,8 +201,8 @@ function ClauseCard({
       {/* HEADER */}
       <div className="flex items-center gap-2 px-3 pt-3 pb-2">
 
-        <span className={`badge-${clause.severity}`}>
-          {clause.severity}
+        <span className={`badge-${severity}`}>
+          {severity}
         </span>
 
         <span

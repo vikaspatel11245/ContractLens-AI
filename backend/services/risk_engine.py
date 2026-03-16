@@ -79,14 +79,26 @@ Return ONLY a raw JSON array, nothing else."""
         cid = r.get("clause_id")
         if cid in clause_lookup:
             orig = clause_lookup[cid]
+            score = r.get("score", 1)
+            
+            # Enforce consistency: override LLM severity with score-based severity
+            if score <= 3:
+                severity = "low"
+            elif score <= 6:
+                severity = "medium"
+            elif score <= 8:
+                severity = "high"
+            else:
+                severity = "critical"
+
             final_results.append(ClauseResult(
                 clause_id=cid,
                 text=orig["text"],
                 page=orig["page"],
-                score=r["score"],
-                category=r["category"],
-                severity=r["severity"],
-                reasoning=r["reasoning"],
+                score=score,
+                category=r.get("category", "general"),
+                severity=severity,
+                reasoning=r.get("reasoning", "No reasoning provided."),
                 suggestions=r.get("suggestions", [])
             ))
 

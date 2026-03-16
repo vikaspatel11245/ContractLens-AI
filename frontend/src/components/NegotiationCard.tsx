@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ClauseResult } from '../api/types';
-import { SEVERITY_TOKENS } from '../utils/riskColors';
+import { scoreToSeverity, SEVERITY_TOKENS } from '../utils/riskColors';
 
 interface Props {
   clause:     ClauseResult;
@@ -9,7 +9,8 @@ interface Props {
 }
 
 export default function NegotiationCard({ clause, isSelected, onClick }: Props) {
-  const tokens = SEVERITY_TOKENS[clause.severity];
+  const severity = scoreToSeverity(clause.score);
+  const tokens = SEVERITY_TOKENS[severity];
   const [copied, setCopied] = useState<number | null>(null);
 
   function handleCopy(text: string, idx: number) {
@@ -33,7 +34,7 @@ export default function NegotiationCard({ clause, isSelected, onClick }: Props) 
       <div className="flex items-start justify-between gap-3 p-4 pb-3">
         <div className="space-y-1.5 flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className={`badge-${clause.severity}`}>{clause.severity}</span>
+            <span className={`badge-${severity}`}>{severity}</span>
             <span className="font-mono text-2xs text-ink-muted capitalize">
               {clause.category.replace('_', ' ')}
             </span>

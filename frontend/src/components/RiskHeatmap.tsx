@@ -166,9 +166,8 @@ function HoverTooltip({
 
   }
 
-  const tokens = SEVERITY_TOKENS[clause.severity]
-
   const severity = scoreToSeverity(clause.score)
+  const tokens = SEVERITY_TOKENS[severity]
 
   return (
 
@@ -232,19 +231,10 @@ function SeveritySummary({
 }) {
 
   const counts = {
-
-    critical:
-      clauses.filter(c => c.severity === 'critical').length,
-
-    high:
-      clauses.filter(c => c.severity === 'high').length,
-
-    medium:
-      clauses.filter(c => c.severity === 'medium').length,
-
-    low:
-      clauses.filter(c => c.severity === 'low').length,
-
+    critical: clauses.filter(c => scoreToSeverity(c.score) === 'critical').length,
+    high:     clauses.filter(c => scoreToSeverity(c.score) === 'high').length,
+    medium:   clauses.filter(c => scoreToSeverity(c.score) === 'medium').length,
+    low:      clauses.filter(c => scoreToSeverity(c.score) === 'low').length,
   }
 
   return (

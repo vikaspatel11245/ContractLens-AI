@@ -1,5 +1,5 @@
 import type { AnalysisResponse } from '../api/types';
-import { overallScoreToSeverity, overallScoreToVerdict, SEVERITY_TOKENS } from '../utils/riskColors';
+import { scoreToSeverity, overallScoreToSeverity, overallScoreToVerdict, SEVERITY_TOKENS } from '../utils/riskColors';
 
 interface Props {
   analysis: AnalysisResponse;
@@ -11,10 +11,10 @@ export default function ScoreCard({ analysis }: Props) {
   const tokens   = SEVERITY_TOKENS[severity];
 
   const counts = {
-    critical: analysis.clauses.filter(c => c.severity === 'critical').length,
-    high:     analysis.clauses.filter(c => c.severity === 'high').length,
-    medium:   analysis.clauses.filter(c => c.severity === 'medium').length,
-    low:      analysis.clauses.filter(c => c.severity === 'low').length,
+    critical: analysis.clauses.filter(c => scoreToSeverity(c.score) === 'critical').length,
+    high:     analysis.clauses.filter(c => scoreToSeverity(c.score) === 'high').length,
+    medium:   analysis.clauses.filter(c => scoreToSeverity(c.score) === 'medium').length,
+    low:      analysis.clauses.filter(c => scoreToSeverity(c.score) === 'low').length,
   };
 
   const top3 = [...analysis.clauses]
@@ -66,7 +66,7 @@ export default function ScoreCard({ analysis }: Props) {
       <div className="hidden lg:flex flex-col gap-1.5">
         <p className="data-label mb-0.5">Top risks</p>
         {top3.map((c) => {
-          const t = SEVERITY_TOKENS[c.severity];
+          const t = SEVERITY_TOKENS[scoreToSeverity(c.score)];
           return (
             <div key={c.clause_id} className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full flex-none" style={{ backgroundColor: t.color }} />

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ClauseResult } from '../api/types';
-import { SEVERITY_TOKENS, type Severity } from '../utils/riskColors';
+import { scoreToSeverity, SEVERITY_TOKENS, type Severity } from '../utils/riskColors';
 
 interface Props {
   pdfId: string;
@@ -74,7 +74,8 @@ function ClauseFallback({
       </div>
 
       {clauses.map((clause) => {
-        const tokens = SEVERITY_TOKENS[clause.severity as Severity];
+        const severity = scoreToSeverity(clause.score);
+        const tokens = SEVERITY_TOKENS[severity];
         const isSelected = selectedClause?.clause_id === clause.clause_id;
 
         return (
@@ -87,7 +88,7 @@ function ClauseFallback({
             }}
           >
             <div className="flex items-center justify-between gap-3 mb-2">
-              <span className={`badge-${clause.severity}`}>{clause.severity}</span>
+              <span className={`badge-${severity}`}>{severity}</span>
               <span className="font-mono text-2xs text-ink-muted">
                 p.{clause.page} · score {clause.score}/10
               </span>
