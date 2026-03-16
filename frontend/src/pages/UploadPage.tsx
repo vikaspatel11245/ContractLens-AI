@@ -5,7 +5,7 @@ import { analyzeContract, type Stage } from '../api/analyze';
 import type { AnalysisResponse } from '../api/types';
 import { MOCK_ANALYSIS } from '../utils/mockData';
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 interface Props {
   isAnalyzing:        boolean;
