@@ -4,28 +4,29 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev":     "vite",
-    "build":   "tsc && vite build",
+    "dev": "vite",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint":    "eslint . --ext ts,tsx --report-unused-disable-directives"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives"
   },
   "dependencies": {
-    "react":        "^18.3.1",
-    "react-dom":    "^18.3.1",
-    "axios":        "^1.7.7",
-    "react-pdf":    "^9.1.1",
-    "recharts":     "^2.13.3",
-    "pdfjs-dist":   "^4.6.82"
+    "axios": "^1.7.7",
+    "pdfjs-dist": "^4.6.82",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-pdf": "^9.1.1",
+    "recharts": "^2.13.3"
   },
   "devDependencies": {
-    "@types/react":             "^18.3.5",
-    "@types/react-dom":         "^18.3.0",
-    "@vitejs/plugin-react":     "^4.3.1",
-    "autoprefixer":             "^10.4.20",
-    "eslint":                   "^9.9.0",
-    "postcss":                  "^8.4.45",
-    "tailwindcss":              "^3.4.11",
-    "typescript":               "^5.5.3",
-    "vite":                     "^5.4.2"
+    "@types/node": "^25.5.0",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^9.9.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.2"
   }
 }
