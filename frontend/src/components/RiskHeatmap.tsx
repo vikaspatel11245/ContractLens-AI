@@ -38,7 +38,7 @@ export default function RiskHeatmap({ clauses, selectedClauseId, onSelect }: Pro
       {/* ── Cell grid ───────────────────────────────────────────────────── */}
       <div
         className="grid gap-1.5"
-        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(28px, 1fr))' }}
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(28px, 1fr))',minHeight:'80px' }}
         role="grid"
         aria-label="Contract risk heatmap"
       >
