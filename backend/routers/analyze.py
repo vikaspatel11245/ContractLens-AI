@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import Response
 from services.pdf_parser import extract_text
 from services.clause_extractor import extract_clauses
@@ -8,41 +8,64 @@ from services.pdf_annotator import annotate_pdf
 
 router = APIRouter()
 
-# store annotated PDF in memory temporarily
+# temporary in-memory PDF store
 pdf_store = {}
 
 @router.post("/api/analyze")
 async def analyze_contract(file: UploadFile = File(...)):
-    print("STEP 1 - File received:", file.filename)
+    # validate file type
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
 
+    # validate file size (max 20MB)
     pdf_bytes = await file.read()
-    print("STEP 2 - PDF bytes read:", len(pdf_bytes))
+    if len(pdf_bytes) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Max 20MB")
 
-    text = extract_text(pdf_bytes)
-    print("STEP 3 - Text extracted, length:", len(text))
+    try:
+        print("STEP 1 - File received:", file.filename)
 
-    clauses = extract_clauses(text)
-    print("STEP 4 - Clauses extracted:", len(clauses))
+        text = extract_text(pdf_bytes)
+        print("STEP 2 - Text extracted:", len(text))
 
-    result = analyze_clauses(clauses)
-    print("STEP 5 - Risk analysis complete")
+        clauses = extract_clauses(text)
+        print("STEP 3 - Clauses extracted:", len(clauses))
 
-    result.clauses = generate_suggestions(result.clauses)
-    print("STEP 6 - Negotiation suggestions generated")
+        result = analyze_clauses(clauses)
+        print("STEP 4 - Risk analysis complete")
 
-    annotated = annotate_pdf(pdf_bytes, result.clauses)
-    pdf_store[result.pdf_id] = annotated
-    print("STEP 7 - PDF annotated")
+        result.clauses = generate_suggestions(result.clauses)
+        print("STEP 5 - Suggestions generated")
 
-    return result
+        annotated = annotate_pdf(pdf_bytes, result.clauses)
+        pdf_store[result.pdf_id] = annotated
+        print("STEP 6 - PDF annotated")
+
+        return result
+
+    except Exception as e:
+        print("ERROR:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/api/pdf/{pdf_id}")
 async def get_annotated_pdf(pdf_id: str):
     pdf_bytes = pdf_store.get(pdf_id)
     if not pdf_bytes:
-        return {"error": "PDF not found"}
+        raise HTTPException(status_code=404, detail="PDF not found")
     return Response(
         content=pdf_bytes,
-        media_type="application/pdf"
+        media_type="application/pdf",
+        headers={"Content-Disposition": "inline; filename=annotated.pdf"}
     )
+
+
+@router.get("/api/health")
+async def health():
+    return {
+        "status": "ok",
+        "endpoints": [
+            "POST /api/analyze",
+            "GET /api/pdf/{pdf_id}"
+        ]
+    }
