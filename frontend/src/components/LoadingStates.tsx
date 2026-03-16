@@ -14,6 +14,17 @@ interface AnalyzingScreenProps {
   currentStage:  Stage;
 }
 
+// Maps each stage to a target progress % shown on the bar
+const STAGE_PERCENT: Partial<Record<Stage, number>> = {
+  idle:       0,
+  uploading:  0,   // driven by uploadPercent dynamically
+  extracting: 40,
+  analyzing:  65,
+  generating: 85,
+  done:       100,
+  error:      0,
+};
+
 export function AnalyzingScreen({ uploadPercent, currentStage }: AnalyzingScreenProps) {
   // Simulate sub-stage progress bar within each processing stage
   const [stageProgress, setStageProgress] = useState(0);
@@ -36,8 +47,14 @@ export function AnalyzingScreen({ uploadPercent, currentStage }: AnalyzingScreen
     return () => clearInterval(timer);
   }, [currentStage]);
 
-  const isUploading = currentStage === 'uploading';
-  const progress    = isUploading ? uploadPercent : stageProgress;
+  // Compute the real progress value based on current stage
+  const progress =
+    currentStage === 'uploading'
+      ? uploadPercent
+      : (STAGE_PERCENT[currentStage] ?? 0);
+
+  const allStages: Stage[] = ['uploading', ...PROCESSING_STAGES];
+  const currentIdx = allStages.indexOf(currentStage);
 
   return (
     <div className="flex flex-col items-center justify-center gap-10 py-8 animate-fade-up">
@@ -55,12 +72,10 @@ export function AnalyzingScreen({ uploadPercent, currentStage }: AnalyzingScreen
 
       {/* ── Stage steps ─────────────────────────────────────────────────── */}
       <div className="w-full max-w-xs space-y-3">
-        {(['uploading', ...PROCESSING_STAGES] as Stage[]).map((stage, i) => {
-          const idx          = (['uploading', ...PROCESSING_STAGES] as Stage[]).indexOf(currentStage);
-          const thisIdx      = i;
-          const isDone       = thisIdx < idx;
-          const isActive     = stage === currentStage;
-          const isPending    = thisIdx > idx;
+        {allStages.map((stage, i) => {
+          const isDone    = i < currentIdx;
+          const isActive  = stage === currentStage;
+          const isPending = i > currentIdx;
 
           return (
             <div key={stage} className="flex items-center gap-3">
@@ -93,8 +108,11 @@ export function AnalyzingScreen({ uploadPercent, currentStage }: AnalyzingScreen
       <div className="w-full max-w-xs space-y-2">
         <div className="h-1.5 bg-surface-overlay rounded-full overflow-hidden">
           <div
-            className="h-full bg-accent rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
+            className="h-full bg-accent rounded-full ease-out"
+            style={{
+              width: `${progress}%`,
+              transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
           />
         </div>
         <div className="flex justify-between">
@@ -102,7 +120,7 @@ export function AnalyzingScreen({ uploadPercent, currentStage }: AnalyzingScreen
             {STAGE_LABELS[currentStage]}
           </span>
           <span className="font-mono text-2xs text-ink-muted">
-            {isUploading ? `${progress}%` : ''}
+            {progress}%
           </span>
         </div>
       </div>

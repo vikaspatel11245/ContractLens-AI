@@ -1,16 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import type { AnalysisResponse } from './types';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// POST /api/analyze
-// Sends the PDF as multipart/form-data, returns AnalysisResponse JSON
-// ─────────────────────────────────────────────────────────────────────────────
-
-export interface UploadProgress {
-  percent: number;   // 0–100 upload progress
-  stage:   Stage;    // which processing stage we're in
-}
-
 export type Stage =
   | 'idle'
   | 'uploading'
@@ -20,7 +10,6 @@ export type Stage =
   | 'done'
   | 'error';
 
-// Human-readable label for each stage (shown in LoadingStates)
 export const STAGE_LABELS: Record<Stage, string> = {
   idle:       'Waiting…',
   uploading:  'Uploading contract…',
@@ -31,7 +20,6 @@ export const STAGE_LABELS: Record<Stage, string> = {
   error:      'Something went wrong',
 };
 
-// Approximate duration each stage takes (ms) — used to animate progress bar
 export const STAGE_DURATIONS: Partial<Record<Stage, number>> = {
   extracting: 2000,
   analyzing:  8000,
@@ -49,34 +37,28 @@ export class AnalysisError extends Error {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
+// onUploadProgress receives 0–100 as the file bytes are sent to the server
 export async function analyzeContract(
   file: File,
-  onProgress?: (progress: UploadProgress) => void,
+  onUploadProgress?: (pct: number) => void,
 ): Promise<AnalysisResponse> {
   const formData = new FormData();
   formData.append('file', file);
 
   try {
-    // Report uploading stage
-    onProgress?.({ percent: 0, stage: 'uploading' });
-
     const response = await axios.post<AnalysisResponse>(
       '/api/analyze',
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (evt) => {
-          const percent = evt.total
-            ? Math.round((evt.loaded * 100) / evt.total)
-            : 0;
-          onProgress?.({ percent, stage: 'uploading' });
+        onUploadProgress: (e) => {
+          if (onUploadProgress && e.total) {
+            const pct = Math.round((e.loaded / e.total) * 100);
+            onUploadProgress(pct);
+          }
         },
       },
     );
-
-    onProgress?.({ percent: 100, stage: 'done' });
     return response.data;
 
   } catch (err) {

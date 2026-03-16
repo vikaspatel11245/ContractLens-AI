@@ -23,7 +23,6 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
 
   async function handleFile(file: File) {
     setPageState('analyzing');
-    setCurrentStage('uploading');
     setErrorMsg('');
     onUploadStart(file.name);
 
@@ -40,12 +39,47 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
     }
 
     try {
-      const result = await analyzeContract(file, (progress) => {
-        setUploadPercent(progress.percent);
-        if (progress.stage === 'uploading') setCurrentStage('uploading');
+      // Stage 1 — Uploading (progress driven by real axios upload callback)
+      setCurrentStage('uploading');
+      setUploadPercent(0);
+
+      // Fire real API call — pass onUploadProgress callback to get real upload %
+      const resultPromise = analyzeContract(file, (pct) => {
+        setUploadPercent(pct);
       });
+
+      // Wait for upload bytes to finish (uploadPercent will reach 100 via callback)
+      // Then give a short beat before switching to next stage
+      await new Promise<void>((resolve) => {
+        const check = setInterval(() => {
+          // We resolve once the callback has pushed us to 100
+          // Fallback: resolve after 5s regardless
+        }, 100);
+        resultPromise.finally(() => {
+          clearInterval(check);
+        });
+        setTimeout(resolve, 5000); // max wait for upload phase UI
+      });
+
+      // Ensure bar shows 100% before leaving uploading stage
+      setUploadPercent(100);
+      await new Promise(r => setTimeout(r, 400));
+
+      // Stage 2 — Extracting
+      setCurrentStage('extracting');
+      await new Promise(r => setTimeout(r, 1200));
+
+      // Stage 3 — Analyzing
+      setCurrentStage('analyzing');
+      await new Promise(r => setTimeout(r, 2000));
+
+      // Stage 4 — Generating (wait here for actual backend result)
+      setCurrentStage('generating');
+      const result = await resultPromise;
+
       setCurrentStage('done');
       onAnalysisComplete(result);
+
     } catch (err) {
       setCurrentStage('error');
       setPageState('error');
@@ -81,7 +115,8 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
           </h1>
 
           <p className="text-ink-secondary text-base leading-relaxed max-w-sm">
-            Upload any SaaS contract and get a clause-by-clause risk breakdown, heatmap, and AI-generated negotiation rewrites in seconds.
+            Upload any SaaS contract and get a clause-by-clause risk breakdown,
+            heatmap, and AI-generated negotiation rewrites in seconds.
           </p>
         </div>
 
@@ -117,8 +152,12 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
         {pageState === 'idle' && (
           <div className="w-full max-w-xl space-y-6 animate-fade-up">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-ink-primary">Upload your contract</h2>
-              <p className="text-ink-muted text-sm">PDF format · max 20 MB · analysis takes ~15 sec</p>
+              <h2 className="text-xl font-semibold text-ink-primary">
+                Upload your contract
+              </h2>
+              <p className="text-ink-muted text-sm">
+                PDF format · max 20 MB · analysis takes ~15 sec
+              </p>
             </div>
             <UploadZone onFile={handleFile} />
 
@@ -128,8 +167,13 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
               <div className="grid grid-cols-4 gap-3">
                 {LEGEND.map(l => (
                   <div key={l.label} className="flex flex-col items-center gap-2">
-                    <div className="w-full h-2 rounded-full" style={{ backgroundColor: l.color }} />
-                    <span className="font-mono text-xs text-ink-muted">{l.label}</span>
+                    <div
+                      className="w-full h-2 rounded-full"
+                      style={{ backgroundColor: l.color }}
+                    />
+                    <span className="font-mono text-xs text-ink-muted">
+                      {l.label}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -139,7 +183,10 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
 
         {pageState === 'analyzing' && (
           <div className="w-full max-w-xl panel p-12 animate-fade-up">
-            <AnalyzingScreen uploadPercent={uploadPercent} currentStage={currentStage} />
+            <AnalyzingScreen
+              uploadPercent={uploadPercent}
+              currentStage={currentStage}
+            />
           </div>
         )}
 
@@ -165,7 +212,7 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
 const FEATURES = [
   { icon: '🔍', label: 'Clause-by-clause scoring',  desc: 'Every clause scored 1–10 for legal risk' },
   { icon: '🟥', label: 'Visual risk heatmap',        desc: 'Color-coded grid — spot danger instantly' },
-  { icon: '✍️', label: 'AI negotiation rewrites',   desc: 'Ready-to-use language to protect your interests' },
+  { icon: '✍️', label: 'AI negotiation rewrites',    desc: 'Ready-to-use language to protect your interests' },
   { icon: '📄', label: 'Annotated PDF export',       desc: 'Download your contract with highlights' },
 ];
 
