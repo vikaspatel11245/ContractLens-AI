@@ -1,3 +1,4 @@
+import { exportHeatmapPNG } from '../utils/exportUtils';
 import { useState } from 'react';
 import type { AnalysisResponse, ClauseResult } from '../api/types';
 import ScoreCard       from '../components/ScoreCard';
@@ -5,6 +6,7 @@ import RiskHeatmap     from '../components/RiskHeatmap';
 import PDFViewer       from '../components/PDFViewer';
 import NegotiationCard from '../components/NegotiationCard';
 import { SEVERITY_TOKENS } from '../utils/riskColors';
+
 
 interface Props {
   analysis: AnalysisResponse;
@@ -26,8 +28,20 @@ export default function DashboardPage({ analysis, fileName }: Props) {
       <div className="flex-none h-24 border-b border-surface-border px-6">
         <div className="h-full flex items-center gap-4">
           <ScoreCard analysis={analysis} />
-          <div className="ml-auto">
-            <span className="font-mono text-xs text-ink-muted">{fileName}</span>
+          <div className="ml-auto flex items-center gap-3">
+            <span className="hidden lg:block font-mono text-xs text-ink-muted">
+              {fileName}
+            </span>
+            <button
+              onClick={() => exportHeatmapPNG(analysis, fileName)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl
+                         bg-surface-overlay border border-surface-border
+                         text-ink-secondary text-xs font-medium
+                         hover:border-accent/50 hover:text-accent
+                         transition-colors duration-150"
+            >
+              <PNGIcon /> Export Heatmap PNG
+            </button>
           </div>
         </div>
       </div>
@@ -108,5 +122,15 @@ export default function DashboardPage({ analysis, fileName }: Props) {
         </aside>
       </div>
     </div>
+  );
+}
+
+
+function PNGIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2 10v1.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
   );
 }
