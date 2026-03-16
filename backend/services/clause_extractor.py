@@ -23,13 +23,13 @@ def extract_clauses(text: str) -> list:
         # clean up page markers from text
         clean_text = re.sub(r'\[PAGE \d+\]', '', section).strip()
         
-        if len(clean_text) < 30:
+        if len(clean_text) < 40:
             continue
             
         clause_id += 1
         clauses.append({
             "id": f"clause_{clause_id}",
-            "text": clean_text[:500],  # limit length
+            "text": clean_text[:1000],  # increased length for better matching
             "page": current_page
         })
     

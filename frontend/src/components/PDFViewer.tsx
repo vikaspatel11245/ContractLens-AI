@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ClauseResult } from '../api/types';
-import { SEVERITY_TOKENS } from '../utils/riskColors';
+import { SEVERITY_TOKENS, type Severity } from '../utils/riskColors';
 
 interface Props {
   pdfId: string;
@@ -44,7 +44,8 @@ export default function PDFViewer({ pdfId, clauses, selectedClause }: Props) {
       <div className="flex-1 overflow-hidden relative bg-surface-base">
         {!useFallback ? (
           <iframe
-            src={pdfUrl}
+            key={selectedClause?.clause_id || 'root'}
+            src={selectedClause ? `${pdfUrl}#page=${selectedClause.page}` : pdfUrl}
             className="w-full h-full border-0"
             title="Contract PDF"
             onError={() => setUseFallback(true)}
@@ -73,7 +74,7 @@ function ClauseFallback({
       </div>
 
       {clauses.map((clause) => {
-        const tokens = SEVERITY_TOKENS[clause.severity];
+        const tokens = SEVERITY_TOKENS[clause.severity as Severity];
         const isSelected = selectedClause?.clause_id === clause.clause_id;
 
         return (

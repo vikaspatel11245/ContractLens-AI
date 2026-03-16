@@ -1,6 +1,7 @@
 import re
 import json
 import os
+import uuid
 from dotenv import load_dotenv
 from groq import Groq
 from models.schemas import ClauseResult, AnalysisResponse
@@ -10,19 +11,25 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def analyze_clauses(clauses: list) -> AnalysisResponse:
-    limited_clauses = clauses[:10]
+    # Remove the 10-clause limit, cap at 50 for token management
+    active_clauses = clauses[:50] 
 
-    clause_text = ""
-    for c in limited_clauses:
-        safe_text = c["text"][:200].replace('"', "'").replace('\n', ' ')
-        clause_text += f'\n{{"id": "{c["id"]}", "text": "{safe_text}", "page": {c["page"]}}}'
+    clause_data_for_llm = []
+    for c in active_clauses:
+        # Snippet for LLM analysis
+        snippet = c["text"][:300].replace('\n', ' ').strip()
+        clause_data_for_llm.append({
+            "id": c["id"],
+            "text": snippet,
+            "page": c["page"]
+        })
+
+    clause_text_block = json.dumps(clause_data_for_llm)
 
     prompt = f"""You are a SaaS contract risk analyst. Analyze each clause and return ONLY a valid JSON array. No explanation, no markdown, no extra text.
 
 For each clause return these exact fields:
-- clause_id: string
-- text: string  
-- page: number
+- clause_id: string (must match the input id)
 - score: number 1-10 (10 = highest risk)
 - category: one of: liability, ip, payment, termination, data, auto_renewal, general
 - severity: one of: low, medium, high, critical
@@ -30,7 +37,7 @@ For each clause return these exact fields:
 - suggestions: array of strings (empty array if low risk)
 
 Clauses to analyze:
-{clause_text}
+{clause_text_block}
 
 Return ONLY a raw JSON array, nothing else."""
 
@@ -56,20 +63,37 @@ Return ONLY a raw JSON array, nothing else."""
         raw = re.sub(r'^```json?\n?', '', raw)
         raw = re.sub(r'\n?```$', '', raw)
 
-    clause_results = json.loads(raw)
+    llm_results = json.loads(raw)
+    
+    # Map back to original clauses to preserve full text for highlighting
+    clause_lookup = {c["id"]: c for c in active_clauses}
+    final_results = []
+    
+    for r in llm_results:
+        cid = r.get("clause_id")
+        if cid in clause_lookup:
+            orig = clause_lookup[cid]
+            final_results.append(ClauseResult(
+                clause_id=cid,
+                text=orig["text"], # Use original text for highlighting!
+                page=orig["page"],
+                score=r["score"],
+                category=r["category"],
+                severity=r["severity"],
+                reasoning=r["reasoning"],
+                suggestions=r.get("suggestions", [])
+            ))
 
-    if not clause_results:
+    if not final_results:
         overall = 0
     else:
         weights = {"critical": 3, "high": 2, "medium": 1, "low": 0.5}
-        total = sum(c["score"] * weights.get(c["severity"], 1) for c in clause_results)
-        max_possible = len(clause_results) * 10 * 3
+        total = sum(c.score * weights.get(c.severity, 1) for c in final_results)
+        max_possible = len(final_results) * 10 * 3
         overall = int((total / max_possible) * 100)
 
-    results = [ClauseResult(**c) for c in clause_results]
-
     return AnalysisResponse(
-        clauses=results,
+        clauses=final_results,
         overall_score=overall,
-        pdf_id="pdf_001"
+        pdf_id=str(uuid.uuid4())
     )

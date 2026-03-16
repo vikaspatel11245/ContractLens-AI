@@ -14,13 +14,13 @@ interface AnalyzingScreenProps {
   currentStage:  Stage;
 }
 
-// Maps each stage to a target progress % shown on the bar
-const STAGE_PERCENT: Partial<Record<Stage, number>> = {
+// Maps each stage to its starting progress percentage on the unified bar
+const STAGE_START: Record<Stage, number> = {
   idle:       0,
-  uploading:  0,   // driven by uploadPercent dynamically
-  extracting: 40,
-  analyzing:  65,
-  generating: 85,
+  uploading:  0,
+  extracting: 30,
+  analyzing:  50,
+  generating: 80,
   done:       100,
   error:      0,
 };
@@ -47,14 +47,25 @@ export function AnalyzingScreen({ uploadPercent, currentStage }: AnalyzingScreen
     return () => clearInterval(timer);
   }, [currentStage]);
 
-  // Compute the real progress value based on current stage
-  const progress =
-    currentStage === 'uploading'
-      ? uploadPercent
-      : (STAGE_PERCENT[currentStage] ?? 0);
-
   const allStages: Stage[] = ['uploading', ...PROCESSING_STAGES];
   const currentIdx = allStages.indexOf(currentStage);
+
+  // Compute the unified progress value that never goes backwards
+  const progress = (() => {
+    if (currentStage === 'done') return 100;
+    if (currentStage === 'error') return 0;
+    
+    const start = STAGE_START[currentStage] ?? 0;
+    const nextStage = allStages[currentIdx + 1] || 'done';
+    const end = STAGE_START[nextStage] ?? 100;
+    const diff = end - start;
+
+    if (currentStage === 'uploading') {
+      return Math.round(start + (uploadPercent / 100) * diff);
+    }
+    // For other stages, interpolate using the simulated stageProgress
+    return Math.round(start + (stageProgress / 100) * diff);
+  })();
 
   return (
     <div className="flex flex-col items-center justify-center gap-10 py-8 animate-fade-up">
