@@ -12,7 +12,7 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def analyze_clauses(clauses: list) -> AnalysisResponse:
-    active_clauses = clauses[:15]
+    active_clauses = clauses[:30]
 
     clause_data_for_llm = []
     for c in active_clauses:
