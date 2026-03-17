@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import type { AnalysisResponse } from './types';
 
+const BASE_URL = import.meta.env.VITE_API_URL || '';
+
 export type Stage =
   | 'idle'
   | 'uploading'
@@ -37,26 +39,16 @@ export class AnalysisError extends Error {
   }
 }
 
-// onUploadProgress receives 0–100 as the file bytes are sent to the server
-export async function analyzeContract(
-  file: File,
-  onUploadProgress?: (pct: number) => void,
-): Promise<AnalysisResponse> {
+export async function analyzeContract(file: File): Promise<AnalysisResponse> {
   const formData = new FormData();
   formData.append('file', file);
 
   try {
     const response = await axios.post<AnalysisResponse>(
-      '/api/analyze',
+      `${BASE_URL}/api/analyze`,
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (e) => {
-          if (onUploadProgress && e.total) {
-            const pct = Math.round((e.loaded / e.total) * 100);
-            onUploadProgress(pct);
-          }
-        },
       },
     );
     return response.data;
