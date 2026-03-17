@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import type { AnalysisResponse } from './types';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '';
+const BASE_URL: string = (import.meta.env.VITE_API_URL as string) || '';
 
 export type Stage =
   | 'idle'
