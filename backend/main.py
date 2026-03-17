@@ -1,26 +1,22 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from routers import analyze
+from routers.analyze import router as analyze_router
 
-load_dotenv()
-
-app = FastAPI(title="Contract Risk API")
+app = FastAPI(title="Contract Risk Heatmap API")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.include_router(analyze_router)
+
 @app.get("/")
-def root():
-    return {"status": "ok", "message": "Contract Risk API running"}
-
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
-
-app.include_router(analyze.router)
+async def root():
+    return {
+        "status": "running",
+        "message": "Contract Risk Heatmap backend is live"
+    }
