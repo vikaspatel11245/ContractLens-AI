@@ -14,7 +14,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/")
+def root():
+    return {"status": "ok"}
 
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
 app.include_router(analyze.router)
 
 @app.get("/")
