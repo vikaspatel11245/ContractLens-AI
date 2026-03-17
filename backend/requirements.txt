@@ -1,8 +1,11 @@
+groq
 fastapi
-uvicorn[standard]
-python-multipart
-anthropic
-pymupdf
-pdfplumber
+uvicorn
 python-dotenv
 pydantic
+pymupdf
+pdfplumber
+python-multipart
+anthropic
+google-generativeai
+google-genai
