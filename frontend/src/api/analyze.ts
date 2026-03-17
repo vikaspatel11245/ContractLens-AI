@@ -39,7 +39,10 @@ export class AnalysisError extends Error {
   }
 }
 
-export async function analyzeContract(file: File): Promise<AnalysisResponse> {
+export async function analyzeContract(
+  file: File,
+  onProgress?: (percent: number) => void
+): Promise<AnalysisResponse> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -49,6 +52,12 @@ export async function analyzeContract(file: File): Promise<AnalysisResponse> {
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(percent);
+          }
+        },
       },
     );
     return response.data;
