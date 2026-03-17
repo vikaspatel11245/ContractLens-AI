@@ -9,8 +9,9 @@ export default defineConfig({
     allowedHosts: ['.ngrok-free.dev'],
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'just-tranquility-production.up.railway.app',
         changeOrigin: true,
+        secure: true,
       }
     }
   }
