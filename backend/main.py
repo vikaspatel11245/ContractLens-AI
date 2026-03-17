@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+rom fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from routers import analyze
@@ -14,15 +14,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.get("/")
 def root():
-    return {"status": "ok"}
+    return {"status": "ok", "message": "Contract Risk API running"}
 
 @app.get("/health")
 def health():
     return {"status": "healthy"}
-app.include_router(analyze.router)
 
-@app.get("/")
-def health_check():
-    return {"status": "ok", "message": "Contract Risk API running"}
+app.include_router(analyze.router)
