@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import type { AnalysisResponse } from './types';
 
-export const BASE_URL: string = (import.meta.env.VITE_API_URL as string) || 'https://contractlens-ai.onrender.com';
+export const BASE_URL: string = import.meta.env.VITE_API_URL || 'https://contractlens-ai.onrender.com';
 
 export type Stage =
   | 'idle'
