@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ClauseResult } from '../api/types';
 import { scoreToSeverity, SEVERITY_TOKENS, type Severity } from '../utils/riskColors';
+import { BASE_URL } from '../api/analyze';
 
 interface Props {
   pdfId: string;
@@ -10,7 +11,7 @@ interface Props {
 
 export default function PDFViewer({ pdfId, clauses, selectedClause }: Props) {
   const [useFallback, setUseFallback] = useState(false);
-  const pdfUrl = `/api/pdf/${pdfId}`;
+  const pdfUrl = `${BASE_URL}/api/pdf/${pdfId}`;
   const pages = [...new Set(clauses.map(c => c.page))].sort((a, b) => a - b);
 
   return (

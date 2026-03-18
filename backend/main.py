@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers.analyze import router as analyze_router
+from backend.routers.analyze import router as analyze_router
 
 app = FastAPI(title="Contract Risk Heatmap API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://contractlens-ed9t1yvo3-vikaspatel11245s-projects.vercel.app",
+        "https://contractlens-ai.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
