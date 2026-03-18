@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api")
 # temporary in-memory PDF store
 pdf_store = {}
 
-@router.post("/api/analyze")
+@router.post("/analyze")
 async def analyze_contract(file: UploadFile = File(...)):
     # validate file type
     if not file.filename.endswith(".pdf"):
@@ -49,7 +49,7 @@ async def analyze_contract(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/api/pdf/{pdf_id}")
+@router.get("/pdf/{pdf_id}")
 async def get_annotated_pdf(pdf_id: str):
     pdf_bytes = pdf_store.get(pdf_id)
     if not pdf_bytes:
@@ -61,7 +61,7 @@ async def get_annotated_pdf(pdf_id: str):
     )
 
 
-@router.get("/api/health")
+@router.get("/health")
 async def health():
     return {
         "status": "ok",
