@@ -95,10 +95,10 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
   }
 
   return (
-    <div className="min-h-[calc(100vh-var(--header-h))] grid grid-cols-[1fr_1.4fr] gap-0">
+    <div className="min-h-[calc(100vh-var(--header-h))] grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-0">
 
       {/* ── LEFT — Branding / feature list ─────────────────────────────── */}
-      <div className="flex flex-col justify-center px-16 py-12 border-r border-surface-border space-y-10">
+      <div className="flex flex-col justify-center p-8 lg:px-16 lg:py-12 border-b lg:border-b-0 lg:border-r border-surface-border space-y-10">
 
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 bg-surface-overlay border border-surface-border rounded-full px-4 py-1.5">
@@ -108,13 +108,13 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
             </span>
           </div>
 
-          <h1 className="text-4xl font-semibold text-ink-primary leading-tight text-balance">
+          <h1 className="text-3xl lg:text-4xl font-semibold text-ink-primary leading-tight text-balance">
             Know every risk
             <br />
             <span className="text-accent">before you sign.</span>
           </h1>
 
-          <p className="text-ink-secondary text-base leading-relaxed max-w-sm">
+          <p className="text-ink-secondary text-sm lg:text-base leading-relaxed max-w-sm">
             Upload any SaaS contract and get a clause-by-clause risk breakdown,
             heatmap, and AI-generated negotiation rewrites in seconds.
           </p>
@@ -136,18 +136,18 @@ export default function UploadPage({ onUploadStart, onAnalysisComplete }: Props)
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-4 pt-2">
+        <div className="grid grid-cols-3 gap-2 lg:gap-4 pt-2">
           {STATS.map(s => (
-            <div key={s.label} className="panel p-4 text-center">
-              <p className="font-mono text-xl font-semibold text-accent">{s.value}</p>
-              <p className="text-ink-muted text-xs mt-1">{s.label}</p>
+            <div key={s.label} className="panel p-3 lg:p-4 text-center">
+              <p className="font-mono text-lg lg:text-xl font-semibold text-accent">{s.value}</p>
+              <p className="text-ink-muted text-2xs lg:text-xs mt-1">{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── RIGHT — Upload / analyzing area ────────────────────────────── */}
-      <div className="flex flex-col items-center justify-center px-16 py-12 bg-surface-raised/30">
+      <div className="flex flex-col items-center justify-center p-6 lg:px-16 lg:py-12 bg-surface-raised/30">
 
         {pageState === 'idle' && (
           <div className="w-full max-w-xl space-y-6 animate-fade-up">

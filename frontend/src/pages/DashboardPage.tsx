@@ -31,12 +31,12 @@ export default function DashboardPage({ analysis, fileName }: Props) {
   const top3 = sortedClauses.slice(0, 3)
 
   return (
-    <div className="h-[calc(100vh-var(--header-h))] overflow-hidden flex flex-col">
+    <div className="min-h-[calc(100vh-var(--header-h))] flex flex-col lg:h-[calc(100vh-var(--header-h))] lg:overflow-hidden">
 
       {/* HEADER */}
-      <div className="flex-none h-24 border-b border-surface-border px-6">
+      <div className="flex-none border-b border-surface-border p-4 lg:px-6 lg:h-24">
 
-        <div className="h-full flex items-center gap-6">
+        <div className="h-full flex flex-wrap lg:flex-nowrap items-center gap-4 lg:gap-6">
 
           <ScoreCard analysis={analysis} />
 
@@ -75,17 +75,10 @@ export default function DashboardPage({ analysis, fileName }: Props) {
       </div>
 
       {/* MAIN GRID */}
-      <div
-        className="flex-1 overflow-hidden grid"
-        style={{
-          gridTemplateColumns: '280px 1fr 300px',
-          gap: '12px',
-          padding: '12px'
-        }}
-      >
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[280px_1fr_300px] gap-3 p-3 lg:overflow-hidden">
 
         {/* LEFT PANEL */}
-        <aside className="panel overflow-y-auto flex flex-col gap-4 p-4">
+        <aside className="panel flex flex-col gap-4 p-4 lg:overflow-y-auto shrink-0">
 
           <p className="data-label">Risk Heatmap</p>
 
@@ -122,7 +115,7 @@ export default function DashboardPage({ analysis, fileName }: Props) {
         </aside>
 
         {/* CENTER PANEL */}
-        <main className="panel overflow-hidden flex flex-col">
+        <main className="panel flex flex-col lg:overflow-hidden min-h-[500px] lg:min-h-0 shrink-0">
 
           <PDFViewer
             pdfId={analysis.pdf_id}
@@ -133,7 +126,7 @@ export default function DashboardPage({ analysis, fileName }: Props) {
         </main>
 
         {/* RIGHT PANEL */}
-        <aside className="panel overflow-y-auto flex flex-col gap-3 p-4">
+        <aside className="panel flex flex-col gap-3 p-4 lg:overflow-y-auto shrink-0">
 
           <p className="data-label">
             Negotiation Suggestions

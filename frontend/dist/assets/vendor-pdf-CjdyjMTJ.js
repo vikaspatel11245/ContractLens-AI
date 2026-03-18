@@ -1,0 +1,9 @@
+import{r as E}from"./vendor-react-jVyfcstf.js";var d={exports:{}},f={};/**
+ * @license React
+ * react-jsx-runtime.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */var h=E,x=Symbol.for("react.element"),S=Symbol.for("react.fragment"),w=Object.prototype.hasOwnProperty,P=h.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,R={key:!0,ref:!0,__self:!0,__source:!0};function p(i,r,c){var t,l={},u=null,e=null;c!==void 0&&(u=""+c),r.key!==void 0&&(u=""+r.key),r.ref!==void 0&&(e=r.ref);for(t in r)w.call(r,t)&&!R.hasOwnProperty(t)&&(l[t]=r[t]);if(i&&i.defaultProps)for(t in r=i.defaultProps,r)l[t]===void 0&&(l[t]=r[t]);return{$$typeof:x,type:i,key:u,ref:e,props:l,_owner:P.current}}f.Fragment=S;f.jsx=p;f.jsxs=p;d.exports=f;var j=d.exports;const k="modulepreload",O=function(i){return"/"+i},m={},g=function(r,c,t){let l=Promise.resolve();if(c&&c.length>0){document.getElementsByTagName("link");const e=document.querySelector("meta[property=csp-nonce]"),n=(e==null?void 0:e.nonce)||(e==null?void 0:e.getAttribute("nonce"));l=Promise.allSettled(c.map(o=>{if(o=O(o),o in m)return;m[o]=!0;const a=o.endsWith(".css"),_=a?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${o}"]${_}`))return;const s=document.createElement("link");if(s.rel=a?"stylesheet":k,a||(s.as="script"),s.crossOrigin="",s.href=o,n&&s.setAttribute("nonce",n),document.head.appendChild(s),a)return new Promise((y,v)=>{s.addEventListener("load",y),s.addEventListener("error",()=>v(new Error(`Unable to preload CSS for ${o}`)))})}))}function u(e){const n=new Event("vite:preloadError",{cancelable:!0});if(n.payload=e,window.dispatchEvent(n),!n.defaultPrevented)throw e}return l.then(e=>{for(const n of e||[])n.status==="rejected"&&u(n.reason);return r().catch(u)})};export{g as _,j};
