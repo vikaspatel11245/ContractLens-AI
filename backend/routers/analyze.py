@@ -6,7 +6,8 @@ from services.risk_engine import analyze_clauses
 from services.negotiation_engine import generate_suggestions
 from services.pdf_annotator import annotate_pdf
 
-router = APIRouter()
+
+router = APIRouter(prefix="/api")
 
 # temporary in-memory PDF store
 pdf_store = {}
